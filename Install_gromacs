@@ -1,0 +1,25 @@
+tar xfz gromacs-5.1.tar.gz
+cd gromacs-5.1
+mkdir build
+cd build
+cmake .. -DGMX_BUILD_OWN_FFTW=ON -DREGRESSIONTEST_DOWNLOAD=OFF -DCMAKE_C_COMPILER=icc -DCMAKE_CXX_COMPILER=icpc -DGMX_FFT_LIBRARY=mkl -DMKL_LIBRARIES="/home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_blacs_openmpi_lp64.a /home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_blas95_lp64.a/home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_core.so /home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_intel_lp64.so /home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_lapack95_lp64.a  /home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_sequential.so" -DMKL_INCLUDE_DIR="/home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/include"  -DCMAKE_INSTALL_PREFIX=/home-yw/users/nscc1201/chenfang/gromacs-5.1
+make && make install
+
+
+参考
+cmake .. --DCMAKE_INSTALL_PREFIX=/home-yw/users/nscc1201/chenfang/gromacs-5.1 -DGMX_FFT_LIBRARY=fftw3 -DFFTWF_LIBRARY="/home-yw/users/nscc1201/chenfang/fftw-3.3.4/lib/libfftw3f.so" -DFFTWF_INCLUDE_DIR="/home-yw/users/nscc1201/chenfang/fftw-3.3.4/include/"
+
+
+
+
+cmake .. -DGMX_BUILD_OWN_FFTW=ON -DREGRESSIONTEST_DOWNLOAD=OFF -DCMAKE_C_COMPILER=icc -DCMAKE_CXX_COMPILER=icpc -DGMX_FFT_LIBRARY=mkl -DMKL_LIBRARIES="/opt/intel/composer_xe_2013.0.079/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a /opt/intel/composer_xe_2013.0.079/mkl/lib/intel64/libmkl_blas95_lp64.a /opt/intel/composer_xe_2013.0.079/mkl/lib/intel64/libmkl_core.so /opt/intel/composer_xe_2013.0.079/mkl/lib/intel64/libmkl_intel_lp64.so /opt/intel/composer_xe_2013.0.079/mkl/lib/intel64/libmkl_lapack95_lp64.a /opt/intel/composer_xe_2013.0.079/mkl/lib/intel64/libmkl_sequential.so" -DMKL_INCLUDE_DIR="/opt/intel/composer_xe_2013.0.079/mkl//include"  -DCMAKE_INSTALL_PREFIX=/THFS/home/g-buct-lh/gromacs-5.1.4
+
+
+tar -xvzf gromacs-4.5.5.tar.gz
+cd gromacs-4.5.5
+./configure --prefix=/home-yw/users/nsyw1345/soft/gromacs-4.5.5/build CC=icc F77=ifort CXX=icpc LIBS="/home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_core.so /home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_intel_lp64.so  /home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/lib/intel64/libmkl_sequential.so -I/home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/include -I/home-yw/compiler/intel2011/composer_xe_2011_sp1.11.339/mkl/includ/fftw"
+注意
+1. 不要链接静态库，否则会有冲突
+2. 本处编译时用了系统自带的 fftw3 库，因此没有给出专门的FFTW库
+
+make && make install

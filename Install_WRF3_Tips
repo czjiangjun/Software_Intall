@@ -1,0 +1,15 @@
+安装 netcdf-4.1.3
+
+CC=icc FC=ifort ./configure --prefix=/home-yw/users/nsyw062_XWW/Softs/netcdf-4.1.3 CPPFLAGS=-I/home-yw/users/nsyw062_XWW/yaoli/netcdf-4.1.3/include LDFLAGS=-L/home-yw/users/nsyw062_XWW/yaoli/netcdf-4.1.3/lib --disable-netcdf-4
+
+make && make install
+
+
+安装WRFV3
+如果直接安装的话，安装前不要./clean -a，有人说WRFV3.4只要./clean -a就装不起来了
+
+修改 configure.wrf 指定编译器，如
+SCC=icc SFC=ifort CCOMP=mpicc DM_FC=mpif90 -f90=$(SFC)
+
+./configure 后选  17. (dm+sm)   INTEL (ifort/icc): Xeon Phi (MIC architecture)
+./compile em_real

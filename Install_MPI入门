@@ -1,0 +1,87 @@
+MPI入门
+
+
+【产生背景】
+多线程是一种便捷的模型，其中每个线程都可以访问其它线程的存储空间。因此，这种模型只能在共享存储系统之间移植。一般来讲，并行机不一定在各处理器之间共享存储，当面向非共享存储系统开发并行程序时，程序的各部分之间通过来回传递消息的方式通信。要使得消息传递方式可移植，就需要采用标准的消息传递库。这就促成的消息传递接口(Message Passing Interface, MPI)的面世
+【MPI】
+全称：Message Passing Interface
+是消息传递编程标准，目前最为通用的并行编程方式
+MPI是一个库，不是一门语言，其提供库函数、过程供C和FORTRAN语言调用
+MPI是一种消息传递编程模型，最终目的是服务于进程间通信
+【基本概念】
+MPI进程：MPI进程中一个独立参与通信的个体
+MPI进程组：MPI进程中由部分或全部进程构成的有序集合；每个进程都被赋予一个所在进程组中唯一的序号，用于在该组中标识该进程，称为进程号，取值从0开始
+--------------------------------------------------------------------------------------------------------------------------------------
+MPI通信器/通信子：
+MPI程序中进程间的通信必须通过通信器进行；通信器分为域内通信器（同一进程组内的通信）和域间通信器（不同进程组的进程间）
+MPI程序启动时“自动”建立两个通信器：
+MPI_COMM_WORLD:包含程序中所有MPI进程
+MPI_COMM_SELF：有单个进程独自构成，仅包含自己
+*在MPI程序中，一个MPI进程由一个进程组和该组中的进程号唯一确定；或由一个通信器和在该通信器中的进程号唯一确定；
+*进程号是相对进程组或通信器而言的，同一进程在不同的进程组或通信器中可以有不同的进程号
+----------------------------------------------------------------------------------------------------------------
+MPI消息：
+一个消息指进程间进行的一次数据交换
+一个消息由“通信器”、“源地址”、“目的地址”、“消息标签”和“数据”构成
+
+【程序】
+***所有包含MPI调用的程序必须包含MPI头文件
+mpi.h 是 MPI 相对于C语言的头文件
+#include "mpi.h"
+
+MPI_MAX_PROCESSOR_NAME 是 MPI 预定义的宏，即 MPI 所允许的机器名字的最大长度
+MPI_INIT和MPI_FINALIZE，分别完成 MPI 的初始化和结束工作
+MPI_COMM_RANK 得到本进程的进程号，进程号取值范围为 0, …, np-1
+MPI_COMM_SIZE 得到所有参加运算的进程的个数
+MPI_GET_PROCESSOR_NAME 得到运行本进程所在的结点的主机名
+
+########
+·MPI的所有变量、常量和函数、过程均已MPI_开头
+·在C程序中，所有“常数”的定义除下划线外一律由大写字母组成，在“函数和数据类型”定义中，接MPI_之后的第一个字母大写，其余全部为小写字母，即MPI_Xxxx_xxx形式
+·MPI的所有C函数中的输出参数用的都是指针
+·MPI是按进程组方式工作：所有MPI程序在开始时均被认为是在通信器MPI_COMM_WORLD所拥有的进程组中工作，之后用户可以根据自己的需要，建立其他的进程组
+
+【最常用的六个接口】
+（C语言）
+--------------------------------
+&MPI_INIT：MPI初始化
+                                    int MPI_Init(int *argc, char ***argv)
+该函数初始化MPI并行程序的执行环境，它必须在调用所有其他MPI函数（除 MPI_INITIALIZED）之前被调用，并且在一个MPI程序中，只能被调用一次。
+----------------------------------------------
+&MPI_FINALIZE：结束MPI系统
+                                        int MPI_Finalize(void)
+ 该函数清除 MPI  环境的所有状态。即一但它被调用，所有MPI 函数都不能再调用，其中包括 MPI_INIT
+---------------------------------------------------------------------------------------
+&MPI_COMM_RANK：返回本进程在指定通信器中的进程号
+                                   int MPI_Comm_rank(MPI_Comm comm,int *rank)
+---------------------------------------------------------------------------------------
+&MPI_COMM_SIZE：返回指定通信器所包含的进程数
+                                  int MPI_Comm_size(MPI_Comm comm,int *size)
+-------------------------------------------
+&MPI_SEND：发送点对点通信
+MPI_SEND(buf,count,datatype,dest,tag,comm)
+IN  buf      所发送消息的首地址
+IN  count    将发送的数据的个数
+IN  datatype 发送数据的数据类型
+IN  dest     接收消息的进程的标识号
+IN  tag      消息标签
+IN  comm     通信器
+    int MPI_Send(void *buf, int count,MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)
+*MPI_SEND 将缓冲区中 count 个 datatype 类型的数据发给进程号为 dest 的目的进程。这里 count 是元素个数，即指定数据类型的个数，不是字节数，数据的起始地址为 buf。本次发送的消息标签是 tag，使用标签的目的是把本次发送的消息和本进程向同一目的进程发送的其它消息区别开来。其中 dest 的取值范围为0~np-1 ( np 表示通信器 comm 中的进程数) 或 MPI_PROC_NULL，tag 的取值为 0~MPI_TAG_UB
+-----------------------------------------------
+&MPU_RECV：接收点对点通信
+  int MPI_Recv(void *buf, int count,MPI_Datatype datatype, int source,  int tag,MPI_Comm comm,MPI_Status *status)
+OUT buf      接收消息数据的首地址
+IN  count    接收数据的最大个数
+IN  datatype 接收数据的数据类型
+IN  source   发送消息的进程的标识号
+IN  tag      消息标签
+IN  comm     通信器
+OUT status	   返回状态
+*从指定的进程 source 接收不超过 count 个 datatype 类型的数据，并把它放到缓冲区中，起始位置为 buf，本次消息的标识为 tag。这里 source 的取值范围为 0 ~np-1，或MPI_ANY_SOURCE，或 MPI_PROC_NULL，tag 的取值为 0~MPI_TAG_UB 或 MPI_ANY_TAG
+*接收消息时返回的状态 STATUS，在 C 语言中是用结构定义的，在 FORTRAN 中是用数组定义的，其中包括 MPI_SOURCE，MPI_TAG 和 MPI_ERROR。此外 STATUS 还包含接收消息元素的个数，但它不是显式给出的，需要用到后面给出的函数 MPI_GET_COUNT
+---------------------
+MPI_SENDRECV：发送和接收组合进行
+int MPI_Sendrecv(void *sendbuf, int sendcount,   MPI_Datatype sendtype, int dest, int sendtag,      void *recvbuf, int recvcount,   MPI_Datatype recvtype, int source,  int recvtag, MPI_Comm comm, MPI_Status *status)
+* 这是发送消息和接收消息组合在一起的一个函数，好处是不用考虑先发送还是先接收消息，从而可以避免消息传递过程中的死锁；sendbuf 和 recvbuf 必须指向不同的缓冲区
+MPI_SENDRECV_REPLACE(buf, datatype, dest,sendtag, source, recvtag, comm, status)功能与 MPI_SENDRECV 类似，但收发消息使用的是同一个缓冲区

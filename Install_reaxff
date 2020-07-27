@@ -1,0 +1,8 @@
+reaxff 代码及其简单
+
+编译时唯一需要注意的是用 gfortran 编译(不用 ifort)
+一般编译会提示
+relocation truncated to fit: R_X86_64_PC32 against symbol `opt_' defined in COMMON section in reac.o
+
+注意，编译选项加添加 -mcmodel=medium 编译选项
+在 ifort 编译器下无效

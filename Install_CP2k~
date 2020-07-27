@@ -1,0 +1,92 @@
+CP2k的主要编译控制文件(Linux-x86-64)在arch目录下
+
+对于Linux-x86-64-intel 编译器，可检查
+arch/Linux-x86-64-intel-mic.psmp
+
+经测试，对CP2k-3.0/4.1
+以下编译器编译成功
+intel2016/compilers_and_libraries_2016.3.210/linux/bin/intel64/ifort
+intel2016/compilers_and_libraries_2016.3.210/linux/bin/intel64/icc
+intel2016/compilers_and_libraries_2016.3.210/linux/mpi/intel64/bin/mpiifort
+intel2016/compilers_and_libraries_2016.3.210/linux/mpi/intel64/bin/mpiicpc
+
+编译命令(见INSTALL文本)
+在makefiles目录下
+make -j N ARCH=Linux-x86-64-intel-host VERSION="sopt popt ssmp psmp"
+注意，对于并行版(popt psmp)
+建议使用动态库
+即
+arch/Linux-x86-64-intel-host.psmp/popt
+中设置
+MKL_STATIC := 0 (不使用静态库)
+
+如果用静态库，其中
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a
+编译 cp2k_shell.psmp/popt 时会有如下报错
+
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mkl_blacs_memory.o): In function `mkl_blacs_malloc':
+mkl_blacs_memory.c:(.text+0x8d): undefined reference to `mkl_serv_iface_malloc'
+mkl_blacs_memory.c:(.text+0xec): undefined reference to `mkl_serv_iface_free'
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mklmpi-impl.o): In function `MKLMPI_Type_create_struct':
+mklmpi-impl.c:(.text+0x3eae): undefined reference to `MKL_calloc'
+mklmpi-impl.c:(.text+0x3ec0): undefined reference to `MKL_calloc'
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mklmpi-impl.o): In function `MKLMPI_Waitall':
+mklmpi-impl.c:(.text+0x4768): undefined reference to `MKL_calloc'
+mklmpi-impl.c:(.text+0x4994): undefined reference to `MKL_calloc'
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mklmpi-impl.o): In function `MKLMPI_Waitany':
+mklmpi-impl.c:(.text+0x4de7): undefined reference to `MKL_calloc'
+make[3]: *** [/home-yw/users/nscc1034_LHHYW/soft/CP2K/cp2k-3.0/exe/Linux-x86-64-intel-host/cp2k.psmp] Error 1
+make[3]: *** Waiting for unfinished jobs....
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mkl_blacs_memory.o): In function `mkl_blacs_malloc':
+mkl_blacs_memory.c:(.text+0x8d): undefined reference to `mkl_serv_iface_malloc'
+mkl_blacs_memory.c:(.text+0xec): undefined reference to `mkl_serv_iface_free'
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mklmpi-impl.o): In function `MKLMPI_Type_create_struct':
+mklmpi-impl.c:(.text+0x3eae): undefined reference to `MKL_calloc'
+mklmpi-impl.c:(.text+0x3ec0): undefined reference to `MKL_calloc'
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mklmpi-impl.o): In function `MKLMPI_Waitall':
+mklmpi-impl.c:(.text+0x4768): undefined reference to `MKL_calloc'
+mklmpi-impl.c:(.text+0x4994): undefined reference to `MKL_calloc'
+intel2016/compilers_and_libraries_2016.3.210/linux/mkl/lib/intel64/libmkl_blacs_intelmpi_lp64.a(mklmpi-impl.o): In function `MKLMPI_Waitany':
+mklmpi-impl.c:(.text+0x4de7): undefined reference to `MKL_calloc'
+make[3]: *** [cp2k-3.0/exe/Linux-x86-64-intel-host/cp2k_shell.psmp] Error 1
+
+
+
+清理编译环境
+All compiled files, libraries, executables, .. of all architectures and
+versions can be removed with
+  > make distclean
+To remove only objects and mod files (i.e., keep exe) for a given
+ARCH/VERSION use, e.g.,
+  > make ARCH=Linux-x86-64-gfortran VERSION=sopt clean
+to remove everything for a given ARCH/VERSION use, e.g.,
+  > make ARCH=Linux-x86-64-gfortran VERSION=sopt realclean
+
+
+以下编译器环境下
+
+intel/composer_xe_2011_sp1.7.256/bin/intel64/ifort
+intel/composer_xe_2011_sp1.7.256/bin/intel64/icc
+
+openmpi-1.4.4-intel
+的 mpicc/mpif90 
+
+编译失败
+
+CP2k-3.0
+ifot/mpif90 -c -diag-disable 8290,8291,10010,10212,11060 -free -fpp -fp-model source  -O2 -xHost -DNDEBUG -D__parallel -D__BLACS -D__SCALAPACK -D__LIBXSTREAM -D__MKL -D__FFTSG -D__FFTW3 -D__INTEL -D__HAS_ISO_C_BINDING -D__USE_CP2K_TRACE -I/home-gk/users/nsgk040_LH/cp2k-3.0/src/acc/mic/libxstream/include -I/home-gk/compiler/intel/composer_xe_2011_sp1.7.256/mkl/include -I/home-gk/compiler/intel/composer_xe_2011_sp1.7.256/mkl/include/fftw  -D__COMPILE_ARCH="\"Linux-x86-64-intel-host\"" -D__COMPILE_DATE="\"Tue May 23 10:47:21 CST 2017\"" -D__COMPILE_HOST="\"gk0111\"" -D__COMPILE_REVISION="\"svn:16458\"" -D__DATA_DIR="\"/home-gk/users/nsgk040_LH/cp2k-3.0/data\"" -D__SHORT_FILE__="\"pao_methods.F\"" /home-gk/users/nsgk040_LH/cp2k-3.0/src/pao_methods.F
+pao_methods.F(292): error #6292: The parent type of this field is use associated with the PRIVATE fields attribute   [STEP_SIZE]
+       IF(icycle > 1 .AND. pao%linesearch%step_size < pao%min_step) &
+------------------------------------------^
+/home-gk/users/nsgk040_LH/cp2k-3.0/src/pao_methods.F(301): error #6292: The parent type of this field is use associated with the PRIVATE fields attribute   [STEP_SIZE]
+                    pao%linesearch%step_size,& !prev step, which let to the current energy
+-----------------------------------^
+compilation aborted for /home-gk/users/nsgk040_LH/cp2k-3.0/src/pao_methods.F (code 1)
+make[3]: *** [pao_methods.o] Error 1
+
+CP2k-4.1
+ifort/mpif90 -c -diag-disable 8290,8291,10010,10212,11060 -free -fpp -fp-model source  -O2 -xHost -DNDEBUG -D__parallel -D__BLACS -D__SCALAPACK -D__LIBXSTREAM -D__MKL -D__FFTSG -D__FFTW3 -D__INTEL -D__HAS_ISO_C_BINDING -D__USE_CP2K_TRACE -I/home-gk/users/nsgk040_LH/cp2k-4.1/src/acc/mic/libxstream/include -I/home-gk/compiler/intel/composer_xe_2011_sp1.7.256/mkl/include -I/home-gk/compiler/intel/composer_xe_2011_sp1.7.256/mkl/include/fftw  -D__COMPILE_ARCH="\"Linux-x86-64-intel-host\"" -D__COMPILE_DATE="\"Tue May 23 11:17:16 CST 2017\"" -D__COMPILE_HOST="\"gk0111\"" -D__COMPILE_REVISION="\"svn:17462\"" -D__DATA_DIR="\"/home-gk/users/nsgk040_LH/cp2k-4.1/data\"" -D__SHORT_FILE__="\"minimax/minimax_exp.F\"" /home-gk/users/nsgk040_LH/cp2k-4.1/src/minimax/minimax_exp.F 
+/home-gk/users/nsgk040_LH/cp2k-4.1/src/minimax/minimax_exp.F(38): error #6580: Name in only-list does not exist.   [K_MM]
+                                              k_mm,&
+----------------------------------------------^
+compilation aborted for /home-gk/users/nsgk040_LH/cp2k-4.1/src/minimax/minimax_exp.F (code 1)
